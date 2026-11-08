@@ -1,5 +1,7 @@
 package com.hakitahu.bookstore.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -79,6 +81,35 @@ public class AuthController {
             userDto.setIsEmailVerified(user.getIsEmailVerified());
 
             return ResponseEntity.ok(userDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.forgotPassword(request.get("email")));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        try {
+            return ResponseEntity.ok(authService.resetPassword(request.get("token"), request.get("newPassword")));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(Authentication authentication, @RequestBody Map<String, String> request) {
+        try {
+            // Cần truyền token JWT lên Header để Spring Security nhận diện được authentication
+            String username = authentication.getName(); 
+            return ResponseEntity.ok(authService.changePassword(username, request.get("oldPassword"), request.get("newPassword")));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

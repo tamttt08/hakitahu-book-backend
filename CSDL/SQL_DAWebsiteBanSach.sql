@@ -295,3 +295,13 @@ go
 
 SELECT * FROM Users
 go
+
+DELETE FROM VerificationTokens
+WHERE UserID = 1;
+
+DELETE FROM Users
+WHERE UserID = 1;
+
+-- Reset seed về 0 để bản ghi tiếp theo có ID = 1
+DBCC CHECKIDENT ('Users', RESEED, 0);
+DBCC CHECKIDENT ('VerificationTokens', RESEED, 0);
