@@ -123,4 +123,58 @@ public class AuthService {
 
         return response;
     }
+    
+ // 1. Gửi link quên mật khẩu
+    public String forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với email này!"));
+
+        if ("GOOGLE".equals(user.getProvider()) && user.getPassword() == null) {
+            throw new RuntimeException("Tài khoản này đăng nhập bằng Google, không thể đổi mật khẩu nội bộ!");
+        }
+
+        // Tạo token mới
+        String tokenString = UUID.randomUUID().toString();
+        VerificationToken token = new VerificationToken();
+        token.setUser(user);
+        token.setToken(tokenString);
+        token.setExpiryDate(LocalDateTime.now().plusMinutes(15)); // Link reset chỉ sống 15 phút
+        tokenRepository.save(token);
+
+        // Gửi email (Cậu nhớ tạo thêm hàm sendPasswordResetEmail trong EmailService nhé)
+        emailService.sendPasswordResetEmail(user.getEmail(), tokenString);
+        return "Link khôi phục mật khẩu đã được gửi vào email của bạn.";
+    }
+
+    // 2. Đặt lại mật khẩu mới (từ link email)
+    public String resetPassword(String token, String newPassword) {
+        VerificationToken resetToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Link không hợp lệ hoặc đã hết hạn!"));
+
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            tokenRepository.delete(resetToken);
+            throw new RuntimeException("Link khôi phục đã hết hạn!");
+        }
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        tokenRepository.delete(resetToken); // Dùng xong xóa luôn
+        return "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập.";
+    }
+
+    // 3. Đổi mật khẩu (Khi đã đăng nhập)
+    public String changePassword(String username, String oldPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Lỗi xác thực người dùng!"));
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Mật khẩu cũ không chính xác!");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return "Đổi mật khẩu thành công!";
+    }
 }
