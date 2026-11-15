@@ -53,6 +53,10 @@ public class SecurityConfig {
 	            .requestMatchers("/oauth2/**").permitAll()
 	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
 	            .requestMatchers("/api/categories", "/api/categories/**").hasAuthority("admin")
+	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/books", "/api/books/**").permitAll()
+	            .requestMatchers("/api/books", "/api/books/**").hasAnyAuthority("admin")
+	            .requestMatchers("/uploads/**").permitAll()
+	            .requestMatchers("/api/upload", "/api/upload/**").hasAnyAuthority("admin")
 	            .anyRequest().authenticated()
 	        )
 	        .oauth2Login(oauth2 -> oauth2
