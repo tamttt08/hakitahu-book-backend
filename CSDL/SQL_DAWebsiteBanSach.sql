@@ -17,7 +17,8 @@ IsEmailVerified BIT DEFAULT 0,
 Phone NVARCHAR(20),
 Address NVARCHAR(255),
 Role NVARCHAR(20), -- user / admin / shipper
-CreatedAt DATETIME DEFAULT GETDATE()
+CreatedAt DATETIME DEFAULT GETDATE(),
+Status BIT DEFAULT 1,
 );
 go
 
@@ -30,16 +31,12 @@ CREATE TABLE VerificationTokens (
 );
 GO
 
--- Thêm cột Status cho Users
-ALTER TABLE Users
-ADD Status BIT DEFAULT 1;
-go
-
 
 -- Tạo bảng Categories
 CREATE TABLE Categories (
 CategoryID INT IDENTITY PRIMARY KEY,
-CategoryName NVARCHAR(100) NOT NULL
+CategoryName NVARCHAR(100) NOT NULL,
+Status BIT NOT NULL DEFAULT 1,
 );
 go
 
@@ -54,10 +51,10 @@ Quantity INT,
 Description NVARCHAR(MAX),
 Image NVARCHAR(255),
 CategoryID INT,
+Status BIT NOT NULL DEFAULT 1,
 FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
 );
 go
-
 
 -- Tạo bảng Carts
 CREATE TABLE Carts (
@@ -293,15 +290,22 @@ FROM Books
 WHERE Quantity < 10;
 go
 
+SELECT * FROM Categories
+go
+
 SELECT * FROM Users
 go
 
 DELETE FROM VerificationTokens
-WHERE UserID = 1;
+WHERE UserID = 3;
 
 DELETE FROM Users
-WHERE UserID = 1;
+WHERE UserID = 3;
 
 -- Reset seed về 0 để bản ghi tiếp theo có ID = 1
 DBCC CHECKIDENT ('Users', RESEED, 0);
 DBCC CHECKIDENT ('VerificationTokens', RESEED, 0);
+DBCC CHECKIDENT ('Categories', RESEED, 0);
+
+UPDATE Users SET Role = 'admin', IsEmailVerified = 1 WHERE Username = 'admin'
+UPDATE Users SET Role = 'shipper', IsEmailVerified = 1 WHERE Username = 'Shipper'
