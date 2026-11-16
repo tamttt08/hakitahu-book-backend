@@ -296,6 +296,9 @@ go
 SELECT * FROM Users
 go
 
+SELECT * FROM VerificationTokens
+go
+
 DELETE FROM VerificationTokens
 WHERE UserID = 3;
 

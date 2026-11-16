@@ -34,3 +34,7 @@ build/
 
 ### Eclipse ###
 uploads/
+
+# Environment variables
+.env
+.env.*
