@@ -57,6 +57,7 @@ public class SecurityConfig {
 	            .requestMatchers("/api/books", "/api/books/**").hasAnyAuthority("admin")
 	            .requestMatchers("/uploads/**").permitAll()
 	            .requestMatchers("/api/upload", "/api/upload/**").hasAnyAuthority("admin")
+				.requestMatchers("/api/users", "/api/users/**").hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
 	            .anyRequest().authenticated()
 	        )
 	        .oauth2Login(oauth2 -> oauth2
