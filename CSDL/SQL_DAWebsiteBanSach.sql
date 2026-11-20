@@ -255,6 +255,29 @@ CREATE TABLE DeliveryProof (
 );
 go
 
+CREATE TABLE Promotions (
+    PromotionID INT IDENTITY PRIMARY KEY,
+    Name NVARCHAR(150) NOT NULL,            -- Tên chương trình (VD: Mừng ngày Nhà giáo 20/11)
+    Description NVARCHAR(500),              -- Mô tả ngắn hiển thị ngoài trang Khuyến mãi
+    DiscountType NVARCHAR(20) NOT NULL,     -- 'PERCENT' hoặc 'FIXED'
+    DiscountValue DECIMAL(10,2) NOT NULL,   -- VD: 20 (%) hoặc 30000 (VNĐ)
+    StartDate DATETIME NOT NULL,            -- Thời gian bắt đầu
+    EndDate DATETIME NOT NULL,              -- Thời gian kết thúc
+    Status BIT DEFAULT 1,                   -- 1: Bật, 0: Tắt khẩn cấp
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+GO
+
+CREATE TABLE PromotionBooks (
+    PromotionBookID INT IDENTITY PRIMARY KEY,
+    PromotionID INT NOT NULL,
+    BookID INT NOT NULL,
+    FOREIGN KEY (PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID) ON DELETE CASCADE,
+    CONSTRAINT UQ_Promotion_Book UNIQUE (PromotionID, BookID)
+);
+GO
+
 
 -- Doanh thu theo tháng
 SELECT 
