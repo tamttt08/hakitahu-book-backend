@@ -2,6 +2,7 @@ package com.hakitahu.bookstore.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,46 +46,53 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-	        .csrf(csrf -> csrf.disable())
-	        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/api/auth/**").permitAll()
-	            .requestMatchers("/oauth2/**").permitAll()
-	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
-	            .requestMatchers("/api/categories", "/api/categories/**").hasAuthority("admin")
-	            .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/books", "/api/books/**").permitAll()
-	            .requestMatchers("/api/books", "/api/books/**").hasAnyAuthority("admin")
-	            .requestMatchers("/uploads/**").permitAll()
-	            .requestMatchers("/api/upload", "/api/upload/**").hasAnyAuthority("admin")
-				.requestMatchers("/api/users", "/api/users/**").hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
-	            .anyRequest().authenticated()
-	        )
-	        .oauth2Login(oauth2 -> oauth2
-	            .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-	            .successHandler(oAuth2SuccessHandler)
-	        )
-	        // THÊM KHỐI NÀY VÀO ĐÂY: Xử lý lỗi cho các API
-	        .exceptionHandling(exception -> exception
-	        	    // Bắt lỗi 401 (Chưa có Token hoặc Token sai)
-	        	    .authenticationEntryPoint((request, response, authException) -> {
-	        	        if (request.getRequestURI().startsWith("/api/")) {
-	        	            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Sai Token hoặc chưa đăng nhập");
-	        	        } else {
-	        	            response.sendRedirect("/oauth2/authorization/google"); 
-	        	        }
-	        	    })
-	        	    // BẮT THÊM LỖI 403 (Có Token nhưng không phải Admin)
-	        	    .accessDeniedHandler((request, response, accessDeniedException) -> {
-	        	        if (request.getRequestURI().startsWith("/api/")) {
-	        	            response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN, "Bạn không có quyền Admin");
-	        	        }
-	        	    })
-	        	);
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+				.csrf(csrf -> csrf.disable())
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/api/auth/**").permitAll()
+						.requestMatchers("/oauth2/**").permitAll()
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
+						.requestMatchers("/api/categories", "/api/categories/**").hasAuthority("admin")
+						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/books", "/api/books/**")
+						.permitAll()
+						.requestMatchers("/api/books", "/api/books/**").hasAnyAuthority("admin")
+						.requestMatchers("/uploads/**").permitAll()
+						.requestMatchers("/api/upload", "/api/upload/**").hasAnyAuthority("admin")
+						.requestMatchers("/api/users", "/api/users/**")
+						.hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/vouchers/active").permitAll()
+						.requestMatchers("/api/vouchers", "/api/vouchers/**")
+						.hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
+						.requestMatchers(HttpMethod.GET, "/api/promotions/active").permitAll()
+						.requestMatchers("/api/promotions", "/api/promotions/**")
+						.hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
+						.anyRequest().authenticated())
+				.oauth2Login(oauth2 -> oauth2
+						.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+						.successHandler(oAuth2SuccessHandler))
+				// THÊM KHỐI NÀY VÀO ĐÂY: Xử lý lỗi cho các API
+				.exceptionHandling(exception -> exception
+						// Bắt lỗi 401 (Chưa có Token hoặc Token sai)
+						.authenticationEntryPoint((request, response, authException) -> {
+							if (request.getRequestURI().startsWith("/api/")) {
+								response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED,
+										"Sai Token hoặc chưa đăng nhập");
+							} else {
+								response.sendRedirect("/oauth2/authorization/google");
+							}
+						})
+						// BẮT THÊM LỖI 403 (Có Token nhưng không phải Admin)
+						.accessDeniedHandler((request, response, accessDeniedException) -> {
+							if (request.getRequestURI().startsWith("/api/")) {
+								response.sendError(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN,
+										"Bạn không có quyền Admin");
+							}
+						}));
 
-	    http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-	    return http.build();
+		return http.build();
 	}
 
 	@Bean
