@@ -9,7 +9,6 @@ import com.hakitahu.bookstore.entity.VerificationToken;
 import com.hakitahu.bookstore.repository.UserRepository;
 import com.hakitahu.bookstore.repository.VerificationTokenRepository;
 import com.hakitahu.bookstore.security.JwtUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,23 +21,26 @@ import java.util.UUID;
 @Service
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final VerificationTokenRepository tokenRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
 
-    @Autowired
-    private VerificationTokenRepository tokenRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private EmailService emailService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
+    public AuthService(UserRepository userRepository,
+                       VerificationTokenRepository tokenRepository,
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService,
+                       AuthenticationManager authenticationManager,
+                       JwtUtils jwtUtils) {
+        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
+    }
 
     public String registerUser(RegisterRequestDTO request) {
         if (userRepository.existsByUsername(request.getUsername())) {

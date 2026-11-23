@@ -4,7 +4,6 @@ import com.hakitahu.bookstore.service.EmailService;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,18 +31,18 @@ import com.hakitahu.bookstore.repository.VerificationTokenRepository;
 public class AuthController {
 
     private final EmailService emailService;
+    private final AuthService authService;
+    private final UserRepository userRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
-    private AuthService authService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private VerificationTokenRepository verificationTokenRepository;
-
-    AuthController(EmailService emailService) {
+    public AuthController(EmailService emailService,
+                          AuthService authService,
+                          UserRepository userRepository,
+                          VerificationTokenRepository verificationTokenRepository) {
         this.emailService = emailService;
+        this.authService = authService;
+        this.userRepository = userRepository;
+        this.verificationTokenRepository = verificationTokenRepository;
     }
 
     @PostMapping("/register")

@@ -16,7 +16,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 @Configuration
@@ -67,6 +66,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.GET, "/api/promotions/active").permitAll()
 						.requestMatchers("/api/promotions", "/api/promotions/**")
 						.hasAnyAuthority("admin", "ROLE_admin", "ADMIN", "ROLE_ADMIN")
+						.requestMatchers("/api/profile", "/api/profile/**").authenticated()
 						.anyRequest().authenticated())
 				.oauth2Login(oauth2 -> oauth2
 						.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
