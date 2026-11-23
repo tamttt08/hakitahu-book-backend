@@ -5,7 +5,6 @@ import com.hakitahu.bookstore.entity.Book;
 import com.hakitahu.bookstore.entity.Promotion;
 import com.hakitahu.bookstore.repository.BookRepository;
 import com.hakitahu.bookstore.repository.PromotionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +19,13 @@ import java.util.Set;
 @CrossOrigin(origins = "http://localhost:5173")
 public class PromotionController {
 
-    @Autowired
-    private PromotionRepository promotionRepository;
+    private final PromotionRepository promotionRepository;
+    private final BookRepository bookRepository;
 
-    @Autowired
-    private BookRepository bookRepository;
+    public PromotionController(PromotionRepository promotionRepository, BookRepository bookRepository) {
+        this.promotionRepository = promotionRepository;
+        this.bookRepository = bookRepository;
+    }
 
     // 1. Lấy tất cả chương trình giảm giá (Admin)
     @GetMapping

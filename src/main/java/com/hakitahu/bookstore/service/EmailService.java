@@ -1,6 +1,5 @@
 package com.hakitahu.bookstore.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -12,8 +11,11 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     public void sendVerificationEmail(String toEmail, String token) {
         String subject = "Xác thực tài khoản HAKITAHU BOOK";

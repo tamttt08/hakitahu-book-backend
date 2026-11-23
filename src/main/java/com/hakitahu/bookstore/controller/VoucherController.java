@@ -2,7 +2,6 @@ package com.hakitahu.bookstore.controller;
 
 import com.hakitahu.bookstore.entity.Voucher;
 import com.hakitahu.bookstore.repository.VoucherRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +15,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class VoucherController {
 
-    @Autowired
-    private VoucherRepository voucherRepository;
+    private final VoucherRepository voucherRepository;
+
+    public VoucherController(VoucherRepository voucherRepository) {
+        this.voucherRepository = voucherRepository;
+    }
 
     // 1. Lấy tất cả voucher (Admin)
     @GetMapping

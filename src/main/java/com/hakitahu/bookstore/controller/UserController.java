@@ -2,7 +2,6 @@ package com.hakitahu.bookstore.controller;
 
 import com.hakitahu.bookstore.entity.User;
 import com.hakitahu.bookstore.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +13,13 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     // 1. Lấy toàn bộ danh sách người dùng
     @GetMapping
